@@ -203,30 +203,31 @@ def create_risk_matrix(df, filter_iniciativa=None):
     ))
     
     # Adicionar totais em cima das colunas
-    for col in pivot_quantidade.columns:
+    for i, col in enumerate(pivot_quantidade.columns):
         fig.add_annotation(
-            x=col,
-            y=pivot_quantidade.index[-1],  # usa última linha como base
+            x=i,  # posição do eixo X
+            y=len(pivot_quantidade.index) - 0.4,  # logo acima da última linha
             text=str(int(col_totals[col])),
             showarrow=False,
-            #font=dict(color="black", size=11),
             xanchor="center",
             yanchor="bottom",
-            yshift=25  # pequeno deslocamento para cima
+            yref="y",  # relativo ao eixo Y
+            xref="x"   # relativo ao eixo X
         )
-    
+
     # Adicionar totais no final das linhas
-    for row in pivot_quantidade.index:
+    for j, row in enumerate(pivot_quantidade.index):
         fig.add_annotation(
-            x=pivot_quantidade.columns[-1],  # usa última coluna como base
-            y=row,
+            x=len(pivot_quantidade.columns) - 0.2,  # logo à direita da última coluna
+            y=j,  # posição do eixo Y
             text=str(int(row_totals[row])),
             showarrow=False,
-            # font=dict(color="black", size=11),
             xanchor="left",
             yanchor="middle",
-            xshift=25  # pequeno deslocamento lateral
+            xref="x",  # relativo ao eixo X
+            yref="y"   # relativo ao eixo Y
         )
+
     
     title = "Matriz de Risco - Tempo no Cargo vs Motivo de Desligamento"
     if filter_iniciativa:
