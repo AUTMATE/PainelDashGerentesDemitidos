@@ -303,7 +303,7 @@ def main():
             st.plotly_chart(fig_timeline, use_container_width=True)
             
             # Matriz de Risco
-            st.header("🎯 Matriz de Risco")
+            st.header("Distribuição Mensal de Desligamentos")
 
             # Função para gerar eixo X formatado (Mês/Ano)
             def get_mes_ano_str(df):
@@ -317,7 +317,13 @@ def main():
                 .reset_index(name='Quantidade')
             )
             demissao_grouped = (
-                df_filtered[df_filtered['Iniciativa Desligamento'] == 'Inic. Empresa']
+                df_filtered[
+                    df_filtered['Iniciativa Desligamento'].isin([
+                        'Inic. Empresa',
+                        'Inic. Empregado',
+                        'Inic. Empresa (Justa Causa)'
+                    ])
+                ]
                 .groupby(df_filtered['Data Desligamento'].dt.to_period('M'))
                 .size()
                 .reset_index(name='Quantidade')
@@ -331,28 +337,28 @@ def main():
             if not pedido_grouped.empty or not demissao_grouped.empty:
                 fig = go.Figure()
 
-                if not pedido_grouped.empty:
-                    fig.add_trace(go.Bar(
-                        x=pedido_grouped['Mes_Ano_str'],
-                        y=pedido_grouped['Quantidade'],
-                        name='Pedido de Demissão',
-                        marker_color='#4A90E2',
-                        text=pedido_grouped['Quantidade'],          # Mostra os valores
-                        textposition='outside'     
-                    ))
+                # if not pedido_grouped.empty:
+                #     fig.add_trace(go.Bar(
+                #         x=pedido_grouped['Mes_Ano_str'],
+                #         y=pedido_grouped['Quantidade'],
+                #         name='Pedido de Demissão',
+                #         marker_color='#4A90E2',
+                #         text=pedido_grouped['Quantidade'],          # Mostra os valores
+                #         textposition='outside'     
+                #     ))
 
                 if not demissao_grouped.empty:
                     fig.add_trace(go.Bar(
                         x=demissao_grouped['Mes_Ano_str'],
                         y=demissao_grouped['Quantidade'],
                         name='Demissão',
-                        marker_color='#50E3C2',
+                        marker_color='#1F77B4',
                         text=demissao_grouped['Quantidade'],          # Mostra os valores
                         textposition='outside'     
                     ))
 
                 fig.update_layout(
-                    title="Matriz de Risco - Desligamentos",
+                    title="Quantidade de Desligamentos por Mês (Total)",
                     xaxis_title="Mês/Ano",
                     yaxis_title="Quantidade",
                     barmode='group',
@@ -365,7 +371,7 @@ def main():
                 st.info("Não há dados de desligamento para exibir")
             
             # Matriz geral
-            st.subheader("Matriz Geral (Todas as Iniciativas)")
+            st.subheader("Matriz de Risco (Todas as Iniciativas)")
             fig_risk_geral = create_risk_matrix(df_filtered)
             st.plotly_chart(fig_risk_geral, use_container_width=True)
             
