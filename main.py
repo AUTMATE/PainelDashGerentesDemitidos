@@ -209,7 +209,7 @@ def create_risk_matrix(df, filter_iniciativa=None):
             y=pivot_quantidade.index[-1],  # usa última linha como base
             text=str(int(col_totals[col])),
             showarrow=False,
-            font=dict(color="black", size=11),
+            #font=dict(color="black", size=11),
             xanchor="center",
             yanchor="bottom",
             yshift=25  # pequeno deslocamento para cima
@@ -222,7 +222,7 @@ def create_risk_matrix(df, filter_iniciativa=None):
             y=row,
             text=str(int(row_totals[row])),
             showarrow=False,
-            font=dict(color="black", size=11),
+            # font=dict(color="black", size=11),
             xanchor="left",
             yanchor="middle",
             xshift=25  # pequeno deslocamento lateral
