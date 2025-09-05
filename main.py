@@ -131,8 +131,10 @@ def create_monthly_timeline(df):
                   y='Quantidade', 
                   color='Iniciativa Desligamento',
                   title='Distribuição Mensal de Desligamentos por Iniciativa',
-                  markers=True)
-    
+                  markers=True,
+                  text='Quantidade'
+                )
+    fig.update_traces(textposition='top center')
     fig.update_layout(
         xaxis_title="Mês/Ano",
         yaxis_title="Quantidade de Desligamentos",
@@ -328,7 +330,9 @@ def main():
                         x=pedido_grouped['Mes_Ano_str'],
                         y=pedido_grouped['Quantidade'],
                         name='Pedido de Demissão',
-                        marker_color='#4A90E2'
+                        marker_color='#4A90E2',
+                        text=pedido_grouped['Quantidade'],          # Mostra os valores
+                        textposition='outside'     
                     ))
 
                 if not demissao_grouped.empty:
@@ -336,7 +340,9 @@ def main():
                         x=demissao_grouped['Mes_Ano_str'],
                         y=demissao_grouped['Quantidade'],
                         name='Demissão',
-                        marker_color='#50E3C2'
+                        marker_color='#50E3C2',
+                        text=demissao_grouped['Quantidade'],          # Mostra os valores
+                        textposition='outside'     
                     ))
 
                 fig.update_layout(
