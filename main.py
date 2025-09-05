@@ -166,6 +166,12 @@ def create_risk_matrix(df, filter_iniciativa=None):
     pivot_tempo = risk_data.pivot(index='Tempo_Cargo', columns='Motivo', values='Tempo_Medio_Empresa').fillna(0)
     pivot_idade = risk_data.pivot(index='Tempo_Cargo', columns='Motivo', values='Idade_Media').fillna(0)
     
+    # Ordenar motivos pelo total de quantidade (do maior para o menor)
+    motivo_order = pivot_quantidade.sum(axis=0).sort_values(ascending=False).index
+    pivot_quantidade = pivot_quantidade[motivo_order]
+    pivot_tempo = pivot_tempo[motivo_order]
+    pivot_idade = pivot_idade[motivo_order]
+    
     # Criar texto para hover
     hover_text = []
     for i in range(len(pivot_quantidade.index)):
