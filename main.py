@@ -145,8 +145,8 @@ def create_monthly_timeline(df):
     
     return fig
 
-def create_risk_matrix(df, filter_iniciativa=None):
-    """Cria matriz de risco"""
+def create_risk_matrix(df, filter_iniciativa=None): 
+    """Cria matriz de risco com totais exibidos em cima das colunas e no final das linhas"""
     if filter_iniciativa:
         df_filtered = df[df['Iniciativa Desligamento'] == filter_iniciativa]
     else:
@@ -172,12 +172,16 @@ def create_risk_matrix(df, filter_iniciativa=None):
     pivot_tempo = pivot_tempo[motivo_order]
     pivot_idade = pivot_idade[motivo_order]
     
-    # Criar texto para hover
+    # Totais
+    col_totals = pivot_quantidade.sum(axis=0)
+    row_totals = pivot_quantidade.sum(axis=1)
+    
+    # Criar texto para hover (mantendo todos os detalhes)
     hover_text = []
     for i in range(len(pivot_quantidade.index)):
         hover_row = []
         for j in range(len(pivot_quantidade.columns)):
-            quantidade = pivot_quantidade.iloc[i, j]
+            quantidade = int(pivot_quantidade.iloc[i, j])
             tempo_medio = pivot_tempo.iloc[i, j]
             idade_media = pivot_idade.iloc[i, j]
             
@@ -187,6 +191,7 @@ def create_risk_matrix(df, filter_iniciativa=None):
             hover_row.append(text)
         hover_text.append(hover_row)
     
+    # Heatmap
     fig = go.Figure(data=go.Heatmap(
         z=pivot_quantidade.values,
         x=pivot_quantidade.columns,
@@ -197,6 +202,32 @@ def create_risk_matrix(df, filter_iniciativa=None):
         colorbar=dict(title="Quantidade de Desligamentos")
     ))
     
+    # Adicionar totais em cima das colunas
+    for col in pivot_quantidade.columns:
+        fig.add_annotation(
+            x=col,
+            y=pivot_quantidade.index[-1],  # usa última linha como base
+            text=str(int(col_totals[col])),
+            showarrow=False,
+            font=dict(color="black", size=11),
+            xanchor="center",
+            yanchor="bottom",
+            yshift=25  # pequeno deslocamento para cima
+        )
+    
+    # Adicionar totais no final das linhas
+    for row in pivot_quantidade.index:
+        fig.add_annotation(
+            x=pivot_quantidade.columns[-1],  # usa última coluna como base
+            y=row,
+            text=str(int(row_totals[row])),
+            showarrow=False,
+            font=dict(color="black", size=11),
+            xanchor="left",
+            yanchor="middle",
+            xshift=25  # pequeno deslocamento lateral
+        )
+    
     title = "Matriz de Risco - Tempo no Cargo vs Motivo de Desligamento"
     if filter_iniciativa:
         title += f" ({filter_iniciativa})"
@@ -204,10 +235,14 @@ def create_risk_matrix(df, filter_iniciativa=None):
     fig.update_layout(
         title=title,
         xaxis_title="Motivo do Desligamento",
-        yaxis_title="Tempo no Cargo"
+        yaxis_title="Tempo no Cargo",
+        autosize=True,
+        height=580,
+        margin=dict(l=80, r=80, t=120, b=80)
     )
     
     return fig
+
 
 def create_age_analysis(df):
     """Cria análise por grupo etário"""
@@ -224,6 +259,29 @@ def create_age_analysis(df):
     fig.update_layout(xaxis_title="Grupo Etário", yaxis_title="Quantidade de Desligamentos")
     
     return fig
+
+def create_tenure_analysis(df):
+    """Cria análise por tempo de permanência na empresa"""
+    tenure_data = df.groupby(['Grupo Tempo Permanencia', 'Iniciativa Desligamento']).size().reset_index(name='Quantidade')
+    
+    fig = px.bar(
+        tenure_data, 
+        x='Grupo Tempo Permanencia', 
+        y='Quantidade', 
+        color='Iniciativa Desligamento',
+        title='Desligamentos por Tempo de Empresa e Iniciativa',
+        text='Quantidade'
+    )
+    
+    fig.update_traces(texttemplate='%{text}', textposition='outside')
+    fig.update_layout(
+        xaxis_title="Tempo de Empresa",
+        yaxis_title="Quantidade de Desligamentos",
+        xaxis={'categoryorder': 'array', 'categoryarray': ["< 1 ano", "1-2 anos", "2-5 anos", "5-10 anos", "> 10 anos"]}
+    )
+    
+    return fig
+
 
 def main():
     if not check_login():
@@ -365,6 +423,7 @@ def main():
                     height=600,
                     legend_title="Tipo de Desligamento"
                 )
+                
 
                 st.plotly_chart(fig, use_container_width=True)
             else:
@@ -376,9 +435,15 @@ def main():
             st.plotly_chart(fig_risk_geral, use_container_width=True)
             
             # Análise por idade
-            st.header("👥 Análise por Grupo Etário")
+            st.header("👥 Análise por Grupo Etário/Tempo de Empresa")
             fig_age = create_age_analysis(df_filtered)
             st.plotly_chart(fig_age, use_container_width=True)
+
+            # Análise por tempo de empresa
+            # st.header("⏳ Análise por Tempo de Empresa")
+            fig_tenure = create_tenure_analysis(df_filtered)
+            st.plotly_chart(fig_tenure, use_container_width=True)
+
             
             # Legenda explicativa
             # st.header("🎨 Legenda das Cores")
