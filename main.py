@@ -302,8 +302,8 @@ def main():
             fig_timeline = create_monthly_timeline(df_filtered)
             st.plotly_chart(fig_timeline, use_container_width=True)
             
-            # Matriz de Risco
-            st.header("Distribuição Mensal de Desligamentos")
+            # # Matriz de Risco
+            # st.header("Distribuição Mensal de Desligamentos")
 
             # Função para gerar eixo X formatado (Mês/Ano)
             def get_mes_ano_str(df):
